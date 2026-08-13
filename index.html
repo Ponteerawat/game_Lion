@@ -66,7 +66,7 @@
             border-color: #e74c3c;
         }
 
-        /* ปรับปรุงระยะห่างปุ่มควบคุมไม่ให้ชิดขอบล่างเกินไป */
+        /* ปรับปรุงระยะห่างปุ่มควบคุมไม่ให้ชิดขอบล่างเกินไป[cite: 2] */
         .controls {
             padding: 20px 20px 85px 20px;
             display: flex;
@@ -194,7 +194,7 @@
             </div>
         </div>
 
-        <!-- หน้าเริ่มต้นเกมพร้อม Story และรูปภาพสิงโต -->
+        <!-- หน้าเริ่มต้นเกมพร้อม Story และรูปภาพสิงโต[cite: 2] -->
         <div id="start-screen" class="overlay-screen">
             <div class="card">
                 <img src="img/lionlogo.png" alt="Lion Logo" class="lion-logo">
@@ -215,12 +215,12 @@
             </div>
         </div>
 
-        <!-- หน้าจบเกม (ชนะ/แพ้) -->
+        <!-- หน้าจบเกม (ชนะ/แพ้)[cite: 2] -->
         <div id="game-over" class="overlay-screen" style="display: none;">
             <div class="card">
                 <h1 id="result-title">เก่งมากเลย! 🎉</h1>
                 
-                <!-- ส่วนแสดงผลกรณี ชนะ ( Stamp Winner Zone ) -->
+                <!-- ส่วนแสดงผลกรณี ชนะ ( Stamp Winner Zone )[cite: 2] -->
                 <div id="win-stamp-container" class="stamp-box" style="display: none;">
                     <img src="img/lionlogo.png" alt="Lion Stamp" class="lion-logo" style="width: 80px; height: 80px;">
                     <p style="color: #27ae60; font-weight: bold; font-size: 15px; margin-top: 5px;">
@@ -231,10 +231,10 @@
                 <p id="result-desc">เก็บเนื้อได้ครบแล้ว!</p>
                 <p>เนื้อที่เก็บได้: <b id="final-meat" style="color: #e67e22; font-size: 22px;">0</b> / 15 🥩</p>
 
-                <!-- ปุ่มเล่นอีกครั้ง -->
+                <!-- ปุ่มเล่นอีกครั้ง[cite: 2] -->
                 <button class="action-btn" onclick="restartGame()">เล่นอีกครั้ง 🔄</button>
 
-                <!-- ★ ปุ่มสำหรับกดแล้วลิงก์ไปหน้าอื่น (จะแสดงเฉพาะเมื่อเล่นชนะ) ★ -->
+                <!-- ★ ปุ่มสำหรับกดแล้วลิงก์ไปหน้าอื่น (จะแสดงเฉพาะเมื่อเล่นชนะ) ★[cite: 2] -->
                 <button id="btn-redirect" class="action-btn redirect-btn" style="display: none;" onclick="goToNextPage()">
                     ดูพาสปอร์ต 🎁
                 </button>
@@ -340,7 +340,7 @@
 
         const container = document.getElementById('game-container');
 
-        // --- 1. SET UP SCENE & CAMERA ---
+        // --- 1. SET UP SCENE & CAMERA[cite: 2] ---
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x70d6ff);
         scene.fog = new THREE.FogExp2(0x70d6ff, 0.008);
@@ -357,7 +357,10 @@
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
-        // --- 2. LIGHTING ---
+        // --- สร้าง Clock สำหรับควบคุมเวลา (Time-based) ---
+        const clock = new THREE.Clock();
+
+        // --- 2. LIGHTING[cite: 2] ---
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
         scene.add(ambientLight);
 
@@ -369,7 +372,7 @@
         sunLight.shadow.bias = -0.0005;
         scene.add(sunLight);
 
-        // --- 3. ENVIRONMENT & DECORATIONS ---
+        // --- 3. ENVIRONMENT & DECORATIONS[cite: 2] ---
         const laneWidth = 2.8; 
 
         const grassGeo = new THREE.PlaneGeometry(160, 300);
@@ -387,7 +390,7 @@
         road.receiveShadow = true;
         scene.add(road);
 
-        // เมฆ 3D
+        // เมฆ 3D[cite: 2]
         const clouds = [];
         function create3DCloud(x, y, z) {
             const cloudGroup = new THREE.Group();
@@ -484,7 +487,7 @@
             createBush(5.5 + Math.random() * 2, z + 5);
         }
 
-        // --- 4. MODEL LION ---
+        // --- 4. MODEL LION[cite: 2] ---
         const lionGroup = new THREE.Group();
 
         const skinMat = new THREE.MeshLambertMaterial({ color: 0xf4a261 });
@@ -536,22 +539,23 @@
         lionGroup.position.z = 0;
         scene.add(lionGroup);
 
-        // --- 5. GAME LOGIC & JUMP PHYSICS ---
+        // --- 5. GAME LOGIC & TIME-BASED PHYSICS ---
         let gameStarted = false;
         let isGameOver = false;
         let meatCollected = 0;
         let timeLeft = 30;
         let timerInterval = null;
         
-        const gameSpeed = 0.38; 
+        // ปรับความเร็วให้สัมพันธ์กับหน่วยวินาที (Delta Time)
+        const gameSpeed = 22.8; 
         let currentLane = 0;
         let objects = [];
-        let spawnTimer = 0;
+        let spawnTime = 0; // เปลี่ยนจาก spawnTimer เป็นตัวนับเวลาวินาที
 
         let lionY = 0;
         let velocityY = 0;
-        const gravity = -0.018;
-        const jumpPower = 0.32;
+        const gravity = -1.05;      // แรงโน้มถ่วงต่อวินาที
+        const jumpPower = 0.46;     // แรงกระโดดต่อวินาที
         let isGrounded = true;
 
         function createMeatMesh() {
@@ -620,7 +624,7 @@
             objects.push(objGroup);
         }
 
-        // --- 6. CONTROLS ---
+        // --- 6. CONTROLS[cite: 2] ---
         function moveLeft() { if (gameStarted && !isGameOver && currentLane > -1) currentLane--; }
         function moveRight() { if (gameStarted && !isGameOver && currentLane < 1) currentLane++; }
         function jump() {
@@ -651,15 +655,18 @@
             renderer.setSize(container.clientWidth, container.clientHeight);
         });
 
-        // --- 7. GAME LOOP & ANIMATION ---
+        // --- 7. GAME LOOP & ANIMATION (TIME-BASED) ---
         let animTime = 0;
 
         function animate() {
             requestAnimationFrame(animate);
-            animTime += 0.2;
+            
+            // ดึงค่าเวลา Delta มาใช้เพื่อให้ความเร็วเท่ากันทุกเครื่อง
+            const delta = clock.getDelta();
+            animTime += delta * 12;
 
             clouds.forEach(c => {
-                c.position.x += 0.02;
+                c.position.x += 1.5 * delta;
                 if (c.position.x > 35) c.position.x = -35;
             });
 
@@ -672,9 +679,9 @@
             if (isGameOver) return;
 
             const targetX = currentLane * laneWidth;
-            lionGroup.position.x += (targetX - lionGroup.position.x) * 0.25;
+            lionGroup.position.x += (targetX - lionGroup.position.x) * 15 * delta;
 
-            velocityY += gravity;
+            velocityY += gravity * delta;
             lionY += velocityY;
 
             if (lionY <= 0) {
@@ -704,22 +711,23 @@
             tailGroup.rotation.y = Math.sin(animTime * 2.5) * 0.6;
 
             sceneryObjects.forEach(obj => {
-                obj.position.z += gameSpeed;
+                obj.position.z += gameSpeed * delta;
                 if (obj.position.z > 10) obj.position.z = -180;
             });
 
-            spawnTimer++;
-            if (spawnTimer > 45) {
+            // ควบคุมการเกิดวัตถุด้วยเวลาจริง (ทุกๆ 0.75 วินาที)
+            spawnTime += delta;
+            if (spawnTime > 0.75) {
                 spawnObject();
-                spawnTimer = 0;
+                spawnTime = 0;
             }
 
             for (let i = objects.length - 1; i >= 0; i--) {
                 let obj = objects[i];
-                obj.position.z += gameSpeed;
+                obj.position.z += gameSpeed * delta;
 
                 if (obj.userData.type === 'meat') {
-                    obj.rotation.y += 0.06;
+                    obj.rotation.y += 3.5 * delta;
                 }
 
                 const zDist = Math.abs(obj.position.z - lionGroup.position.z);
@@ -751,7 +759,7 @@
             renderer.render(scene, camera);
         }
 
-        // --- 8. TIMER & SYSTEM ---
+        // --- 8. TIMER & SYSTEM[cite: 2] ---
         function startTimer() {
             timeLeft = 30;
             document.getElementById('time-left').innerText = timeLeft;
@@ -773,6 +781,7 @@
             AudioFX.startBGM();
             document.getElementById('start-screen').style.display = 'none';
             gameStarted = true;
+            clock.start(); // เริ่มนับเวลาของ Three.js Clock
             startTimer();
         }
 
@@ -786,12 +795,10 @@
 
             if (isWin) {
                 AudioFX.playWinSound();
-                // แสดงแสตมป์ และปุ่มกดเปลี่ยนหน้ากรณีชนะ
                 winStampContainer.style.display = 'flex';
                 btnRedirect.style.display = 'block';
             } else {
                 AudioFX.playHitSound();
-                // ซ่อนแสตมป์ และปุ่มกดเปลี่ยนหน้ากรณีแพ้
                 winStampContainer.style.display = 'none';
                 btnRedirect.style.display = 'none';
             }
@@ -808,7 +815,7 @@
 
             meatCollected = 0;
             currentLane = 0;
-            spawnTimer = 0;
+            spawnTime = 0;
             lionY = 0;
             velocityY = 0;
             isGrounded = true;
@@ -825,18 +832,9 @@
             startTimer();
         }
 
-        // ★ ฟังก์ชันสำหรับกดปุ่มแล้วเปลี่ยนไปหน้าอื่น ★
         function goToNextPage() {
-            // -------------------------------------------------------------
-            // TODO: แก้ไข URL ด้านล่างนี้ให้เป็นลิงก์ปลายทางที่คุณต้องการ
-            // -------------------------------------------------------------
             const targetUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1"; 
-            
-            // เปิดลิงก์ในหน้าต่างเดิม หรือเปลี่ยนหน้า
             window.location.href = targetUrl;
-            
-            // หากต้องการให้เปิดใน Tab ใหม่ ให้ใช้บรรทัดนี้แทน:
-            // window.open(targetUrl, '_blank');
         }
 
         animate();
